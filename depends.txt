@@ -1,0 +1,4 @@
+default
+status
+inspire?
+mobs_slimes?
