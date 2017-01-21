@@ -11,7 +11,7 @@ Although I don't recommend using this with a standard armor mod, it should coope
 
 The source is available on github.
 
-Code: LGPL2
+Code: LGPL2, Textures: CC0
 
 Mod dependencies: default, status
 

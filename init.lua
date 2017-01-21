@@ -350,3 +350,6 @@ minetest.register_chatcommand("armor", {
 		end
 	end,
 })
+
+
+dofile(elixirs_mod.path .. "/molotov.lua")
