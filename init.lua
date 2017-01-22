@@ -439,6 +439,8 @@ elixirs_mod:register_throwitem("elixirs:molotov_cocktail", "Molotov Cocktail", {
     radius = 5,
     block = "fire:basic_flame",
     particles = false,
+    sound = 'more_fire_shatter'
+    --sound = 'more_fire_ignite'
   }
 })
 
@@ -447,4 +449,14 @@ minetest.register_craft({
 	type = 'fuel',
 	recipe = 'elixirs:molotov_cocktail',
 	burntime = 5,
+})
+
+
+elixirs_mod:register_throwitem("elixirs:grenade", "Grenado", {
+  textures = "elixirs_grenade.png",
+	recipe = { "farming:cotton", 'vessels:steel_bottle', "tnt:gunpowder", },
+  recipe_type = 'shapeless',
+  hit_node = function (self, pos)
+    tnt.boom(pos, {damage_radius=5,radius=1,ignore_protection=false})
+  end,
 })
