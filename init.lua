@@ -1,3 +1,7 @@
+-- Elixirs init.lua
+-- Copyright Duane Robertson (duane@duanerobertson.com), 2017
+-- Distributed under the LGPLv2.1 (https://www.gnu.org/licenses/old-licenses/lgpl-2.1.en.html)
+
 elixirs_mod = {}
 elixirs_mod.version = "1.0"
 elixirs_mod.path = minetest.get_modpath(minetest.get_current_modname())
@@ -352,4 +356,95 @@ minetest.register_chatcommand("armor", {
 })
 
 
-dofile(elixirs_mod.path .. "/molotov.lua")
+minetest.register_craftitem('elixirs:naptha', {
+	description = 'Bottle of Naptha',
+	inventory_image = 'elixirs_naptha.png',
+})
+
+minetest.register_craft({
+	output = "elixirs:naptha",
+  type = 'shapeless',
+	recipe = {
+		"vessels:glass_bottle", "default:coal_lump", elixirs_mod.magic_ingredient,
+	},
+})
+
+if minetest.registered_items['bucket:bucket_empty'] then
+  minetest.register_craftitem("elixirs:bucket_of_naptha", {
+    description = 'Bucket of Naptha',
+    inventory_image = "elixirs_bucket_naptha.png",
+  })
+
+  minetest.register_craft({
+    output = "elixirs:bucket_of_naptha",
+    recipe = {
+      {"elixirs:naptha", "elixirs:naptha", "elixirs:naptha",},
+      {"elixirs:naptha", "bucket:bucket_empty", "elixirs:naptha",},
+      {"elixirs:naptha", "elixirs:naptha", "elixirs:naptha",},
+    },
+    replacements = {
+      {'elixirs:naptha', 'vessels:glass_bottle'},
+      {'elixirs:naptha', 'vessels:glass_bottle'},
+      {'elixirs:naptha', 'vessels:glass_bottle'},
+      {'elixirs:naptha', 'vessels:glass_bottle'},
+      {'elixirs:naptha', 'vessels:glass_bottle'},
+      {'elixirs:naptha', 'vessels:glass_bottle'},
+      {'elixirs:naptha', 'vessels:glass_bottle'},
+      {'elixirs:naptha', 'vessels:glass_bottle'},
+    },
+  })
+end
+
+if minetest.registered_items['wooden_bucket:bucket_wood_empty'] then
+  minetest.register_craftitem("elixirs:wood_bucket_of_naptha", {
+    description = 'Wooden Bucket of Naptha',
+    inventory_image = "elixirs_wood_bucket_naptha.png",
+  })
+
+  minetest.register_craft({
+    output = "elixirs:wood_bucket_of_naptha",
+    recipe = {
+      {"elixirs:naptha", "elixirs:naptha", "elixirs:naptha",},
+      {"elixirs:naptha", "wooden_bucket:bucket_wood_empty", "elixirs:naptha",},
+      {"elixirs:naptha", "elixirs:naptha", "elixirs:naptha",},
+    },
+    replacements = {
+      {'elixirs:naptha', 'vessels:glass_bottle'},
+      {'elixirs:naptha', 'vessels:glass_bottle'},
+      {'elixirs:naptha', 'vessels:glass_bottle'},
+      {'elixirs:naptha', 'vessels:glass_bottle'},
+      {'elixirs:naptha', 'vessels:glass_bottle'},
+      {'elixirs:naptha', 'vessels:glass_bottle'},
+      {'elixirs:naptha', 'vessels:glass_bottle'},
+      {'elixirs:naptha', 'vessels:glass_bottle'},
+    },
+  })
+end
+
+minetest.register_craft({
+	type = 'fuel',
+	recipe = 'elixirs:naptha',
+	burntime = 5,
+})
+
+
+dofile(elixirs_mod.path .. "/bombs_api.lua")
+
+elixirs_mod:register_throwitem("elixirs:molotov_cocktail", "Molotov Cocktail", {
+  textures = "more_fire_molotov_cocktail.png",
+	recipe = { "farming:cotton", "elixirs:naptha", },
+  recipe_type = 'shapeless',
+  explosion = {
+    shape = "sphere_cover",
+    radius = 5,
+    block = "fire:basic_flame",
+    particles = false,
+  }
+})
+
+-- fuel recipes
+minetest.register_craft({
+	type = 'fuel',
+	recipe = 'elixirs:molotov_cocktail',
+	burntime = 5,
+})
