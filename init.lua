@@ -12,6 +12,17 @@ local elixir_duration = 3600
 local armor_mod = minetest.get_modpath("3d_armor") and armor and armor.set_player_armor
 
 
+function elixirs_mod.clone_node(name)
+	if not (name and type(name) == 'string') then
+		return
+	end
+
+	local node = minetest.registered_nodes[name]
+	local node2 = table.copy(node)
+	return node2
+end
+
+
 if minetest.registered_items['inspire:inspiration'] then
   elixirs_mod.magic_ingredient = 'inspire:inspiration'
 elseif minetest.registered_items['mobs_slimes:green_slimeball'] then
@@ -460,3 +471,17 @@ elixirs_mod:register_throwitem("elixirs:grenade", "Grenado", {
     tnt.boom(pos, {damage_radius=5,radius=1,ignore_protection=false})
   end,
 })
+
+
+do
+  local cnode = elixirs_mod.clone_node('default:glass')
+  cnode.description = 'Moon Glass'
+  cnode.light_source = 14
+  minetest.register_node('elixirs:moon_glass', cnode)
+
+  minetest.register_craft({
+    output = 'elixirs:moon_glass',
+    type = 'shapeless',
+    recipe = {'default:glass', 'default:torch', elixirs_mod.magic_ingredient},
+  })
+end
