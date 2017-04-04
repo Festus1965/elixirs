@@ -10,6 +10,8 @@ elixirs_mod.elixir_armor = true
 
 local elixir_duration = 3600
 local armor_mod = minetest.get_modpath("3d_armor") and armor and armor.set_player_armor
+local gravity_off = {gravity = 0.1}
+local gravity_on = {gravity = 1}
 
 
 function elixirs_mod.clone_node(name)
@@ -106,6 +108,11 @@ minetest.register_on_joinplayer(function(player)
 	if elixirs_mod.load_armor_elixir and not armor_mod then
 		elixirs_mod.load_armor_elixir(player)
 	end
+
+  local player_name = player:get_player_name()
+	if player_name and status_mod and status_mod.db and status_mod.db.status[player_name] and status_mod.db.status[player_name]['high_jump'] then
+    player:set_physics_override(gravity_off)
+  end
 end)
 
 -- support for 3d_armor
@@ -345,7 +352,6 @@ minetest.register_chatcommand("armor", {
 		end
 
 		local armor = player:get_armor_groups()
-    print(dump(armor))
 		if armor then
 			minetest.chat_send_player(player_name, "Armor:")
 			for group, value in pairs(armor) do
@@ -483,5 +489,70 @@ do
     output = 'elixirs:moon_glass',
     type = 'shapeless',
     recipe = {'default:glass', 'default:torch', elixirs_mod.magic_ingredient},
+  })
+end
+
+
+do
+	local function ingest_jump_elixir(player)
+		if not (player and status_mod.set_status) then
+			return
+		end
+
+		local player_name = player:get_player_name()
+		if not (player_name and type(player_name) == 'string' and player_name ~= '') then
+			return
+		end
+
+    player:set_physics_override(gravity_off)
+		minetest.chat_send_player(player_name, 'You fell lightheaded... and footed...')
+		status_mod.set_status(player_name, 'high_jump', elixir_duration, {})
+	end
+
+  minetest.register_craftitem("elixirs:elixir_jump", {
+    description = 'Dr Robertson\'s Patented Springy Step Elixir',
+    drawtype = "plantlike",
+    paramtype = "light",
+    tiles = {'elixirs_elixir_jump.png'},
+    inventory_image = 'elixirs_elixir_jump.png',
+    groups = {dig_immediate = 3, vessel = 1},
+    sounds = default.node_sound_glass_defaults(),
+    on_use = function(itemstack, user, pointed_thing)
+      if not (itemstack and user) then
+        return
+      end
+
+      ingest_jump_elixir(user, value)
+      itemstack:take_item()
+      return itemstack
+    end,
+  })
+
+	status_mod.register_status({
+		name = 'high_jump',
+		terminate = function(player)
+			if not player then
+				return
+			end
+
+      player:set_physics_override(gravity_on)
+
+			local player_name = player:get_player_name()
+			if not (player_name and type(player_name) == 'string' and player_name ~= '') then
+				return
+			end
+
+			minetest.chat_send_player(player_name, minetest.colorize('#FF0000', 'Your feet feel leaden.'))
+		end,
+	})
+  minetest.register_craft({
+    type = "shapeless",
+    output = 'elixirs:elixir_jump',
+    recipe = {
+      elixirs_mod.magic_ingredient,
+      'flowers:mushroom_red',
+      'flowers:mushroom_brown',
+      "vessels:glass_bottle",
+    },
   })
 end
