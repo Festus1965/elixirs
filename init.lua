@@ -556,3 +556,97 @@ do
     },
   })
 end
+
+
+local function turn_to_gold(pos, params)
+  if not (params and params.self and pos) then
+    return
+  end
+
+  local player = params.self.placer
+  local player_name = player:get_player_name()
+  if not (player_name and type(player_name) == 'string' and player_name ~= '') then
+    return
+  end
+
+  local privs = minetest.check_player_privs(player_name, {server=true})
+  if not privs then
+    return
+  end
+
+  print('Elixirs: '..player_name..' used the Midas grenade')
+
+  pos = vector.round(pos)
+
+  local radius = math.floor(params.radius)
+  local minp = vector.subtract(pos, radius)
+  minp.y = minp.y - math.ceil(radius / 2)
+  local maxp = vector.add(pos, radius)
+  maxp.y = maxp.y + math.ceil(radius / 2)
+
+  local air = minetest.get_content_id('air')
+  local gold = minetest.get_content_id('default:goldblock')
+  local silver = minetest.get_content_id('default:copperblock')
+  local ignore = minetest.get_content_id('default:ignore')
+  local stone = minetest.get_content_id('default:stone')
+  local water = minetest.get_content_id('default:water_source')
+
+  local waters = {}
+  waters[minetest.get_content_id('default:water_source')] = true
+  waters[minetest.get_content_id('default:river_water_source')] = true
+  local stone_types = {'default:stone', 'default:desert_stone', 'default:sandstone', 'default:dirt', 'fun_caves:dirt', 'default:dirt_with_snow', 'default:dirt_with_grass', 'default:dirt_with_dry_grass', 'default:sand', 'default:desert_sand', 'squaresville:concrete', 'squaresville:concrete2', 'squaresville:concrete3', 'squaresville:concrete4'}
+  local stones = {}
+  for i = 1, #stone_types do
+    stones[minetest.get_content_id(stone_types[i])] = true
+  end
+
+  local vm = minetest.get_voxel_manip(minp, maxp)
+  if not vm then
+    return
+  end
+
+  local emin, emax = vm:read_from_map(minp, maxp)
+  local area = VoxelArea:new({MinEdge = emin, MaxEdge = emax})
+  local data = vm:get_data()
+  local heightmap = {}
+  local height_avg = 0
+  local count = 0
+
+  for z = minp.z, maxp.z do
+    local dz = z - minp.z
+    for x = minp.x, maxp.x do
+      local dx = x - minp.x
+      local r = math.max(math.abs(radius - dx), math.abs(radius - dz)) / radius
+      if r < 1 then
+        local ivm = area:index(x, minp.y, z)
+        for y = minp.y, maxp.y do
+          if data[ivm] ~= air and data[ivm] ~= ignore and not waters[data[ivm]] then
+            if stones[data[ivm]] then
+              data[ivm] = gold
+            else
+              data[ivm] = silver
+            end
+          end
+          ivm = ivm + area.ystride
+        end
+      end
+    end
+  end
+
+  vm:set_data(data)
+  --vm:set_lighting({day = 15, night = 0}, minp, maxp)
+  --vm:calc_lighting(minp, maxp)
+  vm:update_liquids()
+  vm:write_to_map()
+  vm:update_map()
+end
+
+
+elixirs_mod:register_throwitem("elixirs:midas_grenade", "Trump Grenade", {
+  textures = "elixirs_grenade.png",
+	recipe = { "farming:cotton", 'vessels:steel_bottle', "tnt:gunpowder", },
+  recipe_type = 'shapeless',
+  hit_node = function (self, pos)
+    turn_to_gold(pos, {self=self,radius=100,ignore_protection=false})
+  end,
+})
