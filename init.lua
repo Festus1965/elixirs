@@ -382,7 +382,7 @@ minetest.register_craft({
 	output = "elixirs:naptha",
   type = 'shapeless',
 	recipe = {
-		"vessels:glass_bottle", "default:coal_lump", elixirs_mod.magic_ingredient,
+		"vessels:glass_bottle", "group:coal", elixirs_mod.magic_ingredient,
 	},
 })
 
@@ -644,7 +644,16 @@ end
 
 elixirs_mod:register_throwitem("elixirs:midas_grenade", "Trump Grenade", {
   textures = "elixirs_grenade.png",
-	recipe = { "farming:cotton", 'vessels:steel_bottle', "tnt:gunpowder", },
+  recipe = {
+    "farming:cotton",
+    'vessels:steel_bottle',
+    "tnt:gunpowder",
+    'default:gold_ingot',
+    'default:gold_ingot',
+    elixirs_mod.magic_ingredient,
+    elixirs_mod.magic_ingredient,
+    elixirs_mod.magic_ingredient
+  },
   recipe_type = 'shapeless',
   hit_node = function (self, pos)
     turn_to_gold(pos, {self=self,radius=100,ignore_protection=false})
