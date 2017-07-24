@@ -4,7 +4,7 @@
 --
 -- Some modifications by Duane
 
-function elixirs_mod:register_throwitem(
+function elixirs:register_throwitem(
     name,       --used for the craftitem and the entity
     descr,      --used for the craftitem
     def)        --array containing the definition parameters

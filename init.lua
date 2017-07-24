@@ -2,11 +2,11 @@
 -- Copyright Duane Robertson (duane@duanerobertson.com), 2017
 -- Distributed under the LGPLv2.1 (https://www.gnu.org/licenses/old-licenses/lgpl-2.1.en.html)
 
-elixirs_mod = {}
-elixirs_mod.version = "1.0"
-elixirs_mod.path = minetest.get_modpath(minetest.get_current_modname())
-elixirs_mod.world = minetest.get_worldpath()
-elixirs_mod.elixir_armor = true
+elixirs = {}
+elixirs.version = "1.0"
+elixirs.path = minetest.get_modpath(minetest.get_current_modname())
+elixirs.world = minetest.get_worldpath()
+elixirs.elixir_armor = true
 
 local elixir_duration = 3600
 local armor_mod = minetest.get_modpath("3d_armor") and armor and armor.set_player_armor
@@ -14,7 +14,7 @@ local gravity_off = {gravity = 0.1}
 local gravity_on = {gravity = 1}
 
 
-function elixirs_mod.clone_node(name)
+function elixirs.clone_node(name)
 	if not (name and type(name) == 'string') then
 		return
 	end
@@ -26,9 +26,9 @@ end
 
 
 if minetest.registered_items['inspire:inspiration'] then
-  elixirs_mod.magic_ingredient = 'inspire:inspiration'
+  elixirs.magic_ingredient = 'inspire:inspiration'
 elseif minetest.registered_items['mobs_slimes:green_slimeball'] then
-  elixirs_mod.magic_ingredient = 'mobs_slimes:green_slimeball'
+  elixirs.magic_ingredient = 'mobs_slimes:green_slimeball'
 else
   minetest.register_craftitem("elixirs:magic_placeholder", {
     description = 'Magic Ingredient',
@@ -40,15 +40,15 @@ else
     sounds = default.node_sound_glass_defaults(),
 	})
 
-  elixirs_mod.magic_ingredient = 'elixirs:magic_placeholder'
+  elixirs.magic_ingredient = 'elixirs:magic_placeholder'
 end
 
 
-elixirs_mod.armor_id = {}
+elixirs.armor_id = {}
 local armor_hud
 if not armor_mod then
 	armor_hud = function(player)
-		if not (player and elixirs_mod.armor_id) then
+		if not (player and elixirs.armor_id) then
 			return
 		end
 
@@ -75,13 +75,13 @@ if not armor_mod then
 			offset = {x = 0, y = -80},
 		}
 
-		elixirs_mod.armor_id[player_name] = {}
-		elixirs_mod.armor_id[player_name].icon = player:hud_add(armor_icon)
-		elixirs_mod.armor_id[player_name].text = player:hud_add(armor_text)
+		elixirs.armor_id[player_name] = {}
+		elixirs.armor_id[player_name].icon = player:hud_add(armor_icon)
+		elixirs.armor_id[player_name].text = player:hud_add(armor_text)
 	end
 
-	elixirs_mod.display_armor = function(player)
-		if not (player and elixirs_mod.armor_id) then
+	elixirs.display_armor = function(player)
+		if not (player and elixirs.armor_id) then
 			return
 		end
 
@@ -91,7 +91,7 @@ if not armor_mod then
 			return
 		end
 
-		player:hud_change(elixirs_mod.armor_id[player_name].text, 'text', (100 - armor.fleshy)..'%')
+		player:hud_change(elixirs.armor_id[player_name].text, 'text', (100 - armor.fleshy)..'%')
 	end
 end
 
@@ -105,8 +105,8 @@ minetest.register_on_joinplayer(function(player)
 	end
 
 	-- If there's an armor mod, we wait for it to load armor.
-	if elixirs_mod.load_armor_elixir and not armor_mod then
-		elixirs_mod.load_armor_elixir(player)
+	if elixirs.load_armor_elixir and not armor_mod then
+		elixirs.load_armor_elixir(player)
 	end
 
   local player_name = player:get_player_name()
@@ -122,8 +122,8 @@ if armor_mod then
 
 	armor.set_player_armor = function(self, player)
 		old_set_player_armor(self, player)
-		if elixirs_mod.load_armor_elixir then
-			elixirs_mod.load_armor_elixir(player)
+		if elixirs.load_armor_elixir then
+			elixirs.load_armor_elixir(player)
 		end
 	end
 end
@@ -166,14 +166,14 @@ if status_mod.register_status and status_mod.set_status then
 		type = "shapeless",
 		output = 'elixirs:elixir_breathe',
 		recipe = {
-      elixirs_mod.magic_ingredient,
+      elixirs.magic_ingredient,
 			'default:coral_skeleton',
 			"vessels:glass_bottle",
 		},
 	})
 
 
-	elixirs_mod.reconcile_armor = function(elixir_armor, worn_armor)
+	elixirs.reconcile_armor = function(elixir_armor, worn_armor)
 		if elixir_armor < worn_armor then
 			return elixir_armor
 		end
@@ -183,7 +183,7 @@ if status_mod.register_status and status_mod.set_status then
 
 	-- set_armor assumes any armor mods have already set the normal armor values.
 	local function set_armor(player, value, delay)
-		if not (player and elixirs_mod.reconcile_armor) then
+		if not (player and elixirs.reconcile_armor) then
 			return
 		end
 
@@ -193,21 +193,21 @@ if status_mod.register_status and status_mod.set_status then
 		end
 
 		if armor_mod then
-			armor.fleshy = elixirs_mod.reconcile_armor(value, armor.fleshy)
+			armor.fleshy = elixirs.reconcile_armor(value, armor.fleshy)
 		else
 			armor.fleshy = value
 		end
 
 		player:set_armor_groups(armor)
 
-		if elixirs_mod.display_armor then
+		if elixirs.display_armor then
 			if delay then
 				-- Delay display, in case of lag.
 				minetest.after(delay, function()
-					elixirs_mod.display_armor(player)
+					elixirs.display_armor(player)
 				end)
 			else
-				elixirs_mod.display_armor(player)
+				elixirs.display_armor(player)
 			end
 		end
 
@@ -240,7 +240,7 @@ if status_mod.register_status and status_mod.set_status then
 	end
 
 	-- called on joinplayer and every time an armor mod updates
-	elixirs_mod.load_armor_elixir = function(player)
+	elixirs.load_armor_elixir = function(player)
 		if not (player and status_mod.db.status) then
 			return
 		end
@@ -264,8 +264,8 @@ if status_mod.register_status and status_mod.set_status then
 			end
 
 			player:set_armor_groups({fleshy = 100})
-			if elixirs_mod.display_armor then
-				elixirs_mod.display_armor(player)
+			if elixirs.display_armor then
+				elixirs.display_armor(player)
 			end
 
 			-- support for 3d_armor
@@ -299,7 +299,7 @@ if status_mod.register_status and status_mod.set_status then
 		--{'adamant', 10, 'elixirs:adamant'},
 	}
 
-	if elixirs_mod.elixir_armor then
+	if elixirs.elixir_armor then
 		for _, desc in pairs(descs) do
 			local name = desc[1]
 			local value = desc[2]
@@ -327,7 +327,7 @@ if status_mod.register_status and status_mod.set_status then
 				type = "shapeless",
 				output = 'elixirs:liquid_'..name,
 				recipe = {
-					elixirs_mod.magic_ingredient,
+					elixirs.magic_ingredient,
 					desc[3],
 					"vessels:glass_bottle",
 				},
@@ -382,7 +382,7 @@ minetest.register_craft({
 	output = "elixirs:naptha",
   type = 'shapeless',
 	recipe = {
-		"vessels:glass_bottle", "group:coal", elixirs_mod.magic_ingredient,
+		"vessels:glass_bottle", "group:coal", elixirs.magic_ingredient,
 	},
 })
 
@@ -445,9 +445,9 @@ minetest.register_craft({
 })
 
 
-dofile(elixirs_mod.path .. "/bombs_api.lua")
+dofile(elixirs.path .. "/bombs_api.lua")
 
-elixirs_mod:register_throwitem("elixirs:molotov_cocktail", "Molotov Cocktail", {
+elixirs:register_throwitem("elixirs:molotov_cocktail", "Molotov Cocktail", {
   textures = "more_fire_molotov_cocktail.png",
 	recipe = { "farming:cotton", "elixirs:naptha", },
   recipe_type = 'shapeless',
@@ -469,7 +469,7 @@ minetest.register_craft({
 })
 
 
-elixirs_mod:register_throwitem("elixirs:grenade", "Grenado", {
+elixirs:register_throwitem("elixirs:grenade", "Grenado", {
   textures = "elixirs_grenade.png",
 	recipe = { "farming:cotton", 'vessels:steel_bottle', "tnt:gunpowder", },
   recipe_type = 'shapeless',
@@ -480,7 +480,7 @@ elixirs_mod:register_throwitem("elixirs:grenade", "Grenado", {
 
 
 do
-  local cnode = elixirs_mod.clone_node('default:glass')
+  local cnode = elixirs.clone_node('default:glass')
   cnode.description = 'Moon Glass'
   cnode.light_source = 14
   minetest.register_node('elixirs:moon_glass', cnode)
@@ -488,7 +488,7 @@ do
   minetest.register_craft({
     output = 'elixirs:moon_glass',
     type = 'shapeless',
-    recipe = {'default:glass', 'default:torch', elixirs_mod.magic_ingredient},
+    recipe = {'default:glass', 'default:torch', elixirs.magic_ingredient},
   })
 end
 
@@ -549,7 +549,7 @@ do
     type = "shapeless",
     output = 'elixirs:elixir_jump',
     recipe = {
-      elixirs_mod.magic_ingredient,
+      elixirs.magic_ingredient,
       'flowers:mushroom_red',
       'flowers:mushroom_brown',
       "vessels:glass_bottle",
@@ -642,7 +642,7 @@ local function turn_to_gold(pos, params)
 end
 
 
-elixirs_mod:register_throwitem("elixirs:midas_grenade", "Trump Grenade", {
+elixirs:register_throwitem("elixirs:midas_grenade", "Trump Grenade", {
   textures = "elixirs_grenade.png",
   recipe = {
     "farming:cotton",
@@ -650,9 +650,9 @@ elixirs_mod:register_throwitem("elixirs:midas_grenade", "Trump Grenade", {
     "tnt:gunpowder",
     'default:gold_ingot',
     'default:gold_ingot',
-    elixirs_mod.magic_ingredient,
-    elixirs_mod.magic_ingredient,
-    elixirs_mod.magic_ingredient
+    elixirs.magic_ingredient,
+    elixirs.magic_ingredient,
+    elixirs.magic_ingredient
   },
   recipe_type = 'shapeless',
   hit_node = function (self, pos)
