@@ -3,7 +3,7 @@
 -- Distributed under the LGPLv2.1 (https://www.gnu.org/licenses/old-licenses/lgpl-2.1.en.html)
 
 elixirs = {}
-elixirs.version = "1.0"
+elixirs.version = "20171028"
 elixirs.path = minetest.get_modpath(minetest.get_current_modname())
 elixirs.world = minetest.get_worldpath()
 elixirs.elixir_armor = true
