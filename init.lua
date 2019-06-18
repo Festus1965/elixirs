@@ -667,3 +667,40 @@ if false then
 		end,
 	})
 end
+
+
+if minetest.registered_items['nmobs:slime_ball'] then
+	minetest.register_craftitem(mod_name..':gooey_mess', {
+		description = 'Gooey Mess',
+		drawtype = 'plantlike',
+		paramtype = 'light',
+		tiles = { 'elixirs_gooey_mess.png' },
+		inventory_image = 'elixirs_gooey_mess.png',
+		groups = { dig_immediate = 3 },
+		sounds = default.node_sound_water_defaults(),
+		on_use = minetest.item_eat(-6),
+	})
+
+	minetest.register_craft({
+		type = 'shapeless',
+		output = mod_name..':gooey_mess 9',
+		recipe = {
+			'flowers:mushroom_red',
+			'flowers:mushroom_red',
+			'default:coral_green',
+			'default:fern_1',
+			'default:fern_1',
+			'default:fern_1',
+			'default:fern_1',
+			'default:fern_1',
+			'default:fern_1',
+		},
+	})
+
+	minetest.register_craft({
+		type = 'cooking',
+		output = 'nmobs:slime_ball',
+		recipe = mod_name..':gooey_mess',
+		cooktime = 5,
+	})
+end
