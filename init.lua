@@ -707,7 +707,7 @@ end
 
 
 do
-	for _, i in pairs({ 'bucket:bucket_empty', 'bucket:bucket_wood_empty' }) do
+	for _, i in pairs({ 'bucket:bucket_empty', 'wooden_bucket:bucket_wood_empty' }) do
 		local n = minetest.registered_items[i]
 		if n then
 			local groups = n.groups or {}
