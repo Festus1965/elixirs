@@ -790,3 +790,17 @@ do
 		})
 	end
 end
+
+
+minetest.register_craft({
+	output = 'default:paper',
+	type = 'shapeless',
+	recipe = { 'farming:cotton', 'farming:cotton', 'farming:cotton' }
+})
+
+
+minetest.register_craft({
+	output = 'default:paper',
+	type = 'shapeless',
+	recipe = { 'group:wood', 'group:stone', mod.magic_ingredient }
+})
